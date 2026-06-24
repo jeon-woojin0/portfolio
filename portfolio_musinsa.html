@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>무신사 NLP 분석 | 데이터 분석 포트폴리오</title>
+<style>
+  :root {
+    --blue: #4E79A7;
+    --green: #59A14F;
+    --red: #E15759;
+    --orange: #F28E2B;
+    --yellow: #F1CE63;
+    --purple: #9B72CF;
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #59A14F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; overflow-x: hidden;
+  }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(10,15,30,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo { font-weight: 700; font-size: 0.9rem; color: var(--green); letter-spacing: 0.05em; }
+  .nav-back {
+    font-size: 0.85rem; color: var(--muted); text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 6rem 2rem 4rem; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(89,161,79,0.1) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 70%, rgba(78,121,167,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(89,161,79,0.1);
+    border: 1px solid rgba(89,161,79,0.35);
+    border-radius: 999px;
+    font-size: 0.8rem; color: var(--green);
+    letter-spacing: 0.08em; margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 800; line-height: 1.2; margin-bottom: 1.2rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--green); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--muted); max-width: 640px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-kpi {
+    display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.4rem 2rem;
+    min-width: 140px; text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(89,161,79,0.2); }
+  .kpi-card .kpi-num { font-size: 2rem; font-weight: 800; color: var(--green); display: block; }
+  .kpi-card .kpi-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+  section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--green); text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1rem; }
+  .lead { color: var(--muted); font-size: 1.05rem; max-width: 680px; margin-bottom: 3rem; }
+  .full-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  .flow { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .flow::before {
+    content: ''; position: absolute; left: 24px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--green), var(--blue), var(--orange));
+    opacity: 0.35;
+  }
+  .flow-item {
+    display: flex; gap: 2rem; align-items: flex-start;
+    padding: 2rem 0; position: relative;
+  }
+  .flow-dot {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+    position: relative; z-index: 1; border: 2px solid;
+  }
+  .flow-dot.green  { background: rgba(89,161,79,0.15);  border-color: var(--green); }
+  .flow-dot.blue   { background: rgba(78,121,167,0.15); border-color: var(--blue); }
+  .flow-dot.orange { background: rgba(242,142,43,0.15); border-color: var(--orange); }
+  .flow-dot.red    { background: rgba(225,87,89,0.15);  border-color: var(--red); }
+  .flow-body { flex: 1; }
+  .flow-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .flow-body p { color: var(--muted); font-size: 0.95rem; }
+
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+  .topic-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .topic-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .topic-num { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; }
+  .topic-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .topic-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.6; }
+  .topic-bar {
+    margin-top: 0.8rem; height: 4px; border-radius: 4px;
+    background: var(--border);
+  }
+  .topic-fill { height: 100%; border-radius: 4px; background: var(--green); }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+  .compare-table th {
+    text-align: left; padding: 0.8rem 1rem;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.8rem; color: var(--muted); font-weight: 600; letter-spacing: 0.05em;
+  }
+  .compare-table td {
+    padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .tag { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .tag.bad  { background: rgba(225,87,89,0.15);  color: var(--red); }
+  .tag.good { background: rgba(89,161,79,0.15);  color: var(--green); }
+  .tag.mid  { background: rgba(242,142,43,0.15); color: var(--orange); }
+
+  .insight-box {
+    background: linear-gradient(135deg, rgba(89,161,79,0.08) 0%, rgba(78,121,167,0.05) 100%);
+    border: 1px solid rgba(89,161,79,0.25);
+    border-radius: 16px; padding: 2.4rem; margin: 2.5rem 0;
+  }
+  .insight-box h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--green); }
+  .insight-box p { color: var(--muted); margin-bottom: 0.5rem; }
+  .big-num { font-size: 2.5rem; font-weight: 900; color: var(--orange); }
+
+  .action-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border-radius: 16px; overflow: hidden; margin-top: 1.5rem;
+  }
+  .action-step {
+    background: var(--surface); padding: 1.6rem; text-align: center;
+  }
+  .action-icon { font-size: 1.8rem; display: block; margin-bottom: 0.6rem; }
+  .action-step h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .action-step p  { color: var(--muted); font-size: 0.8rem; }
+
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+  .tech-badge {
+    padding: 0.45rem 1rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; border: 1px solid;
+    transition: transform 0.15s;
+  }
+  .tech-badge:hover { transform: scale(1.05); }
+  .tech-badge.python { background: rgba(78,121,167,0.1); border-color: var(--blue); color: var(--blue); }
+  .tech-badge.nlp    { background: rgba(155,114,207,0.1); border-color: var(--purple); color: var(--purple); }
+  .tech-badge.stat   { background: rgba(89,161,79,0.1); border-color: var(--green); color: var(--green); }
+  .tech-badge.tool   { background: rgba(242,142,43,0.1); border-color: var(--orange); color: var(--orange); }
+
+  .deliverables { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+  .del-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem; transition: transform 0.2s;
+  }
+  .del-card:hover { transform: translateY(-3px); }
+  .del-icon { font-size: 2rem; margin-bottom: 0.8rem; display: block; }
+  .del-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .del-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.6; }
+
+  footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    text-align: center; padding: 2.5rem;
+  }
+  footer p { color: var(--muted); font-size: 0.83rem; }
+  footer .footer-name { font-weight: 700; color: var(--text); font-size: 1rem; margin-bottom: 0.4rem; }
+
+  #progress {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--green), var(--blue));
+    transform-origin: left; transform: scaleX(0);
+    z-index: 99; transition: transform 0.1s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    .hero-kpi { gap: 1rem; }
+    .kpi-card { min-width: 120px; padding: 1rem 1.2rem; }
+    .action-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <a class="nav-back" href="전우진 포트포리오.html">← 포트폴리오 홈</a>
+  <div class="nav-links">
+    <a href="#overview">개요</a>
+    <a href="#topics">토픽 분석</a>
+    <a href="#compare">경쟁사 비교</a>
+    <a href="#stack">기술 스택</a>
+  </div>
+</nav>
+
+<div class="hero" id="top">
+  <span class="hero-badge">모두의연구소 아이펠론 C1 · 2025</span>
+  <h1>무신사 데님 리뷰<br><span>NLP 경쟁사 비교 분석</span></h1>
+  <p class="hero-sub">
+    "무탠다드 데님, 슬랙스만큼 강해질 수 있을까?" 슬랙스에서는 상위 랭킹을 점유한 무탠다드가 데님 카테고리에서 낮은 점유율을 보이는 이유를 고객 리뷰 4,877건 BERTopic 분석으로 규명했습니다.
+  </p>
+  <div class="hero-kpi">
+    <div class="kpi-card">
+      <span class="kpi-num">4,877</span>
+      <div class="kpi-label">분석 리뷰 건수</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">14개</span>
+      <div class="kpi-label">도출 토픽</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">0.59%</span>
+      <div class="kpi-label">세탁 물빠짐 언급</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">+5.2%p</span>
+      <div class="kpi-label">착용감 불만 차이</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">무신사 스탠다드 vs 그 외 브랜드</span>
+      <div class="kpi-label">비교 브랜드</div>
+    </div>
+  </div>
+</div>
+
+<hr class="full-divider">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label reveal">프로젝트 개요</div>
+  <h2 class="reveal">데님이 슬랙스만큼 강하지 않은 이유</h2>
+  <p class="lead reveal">
+    무신사 슬랙스 카테고리에서 무탠다드는 후기순 상위 랭킹을 다수 차지하지만, 데님 카테고리에서는 점유율이 낮습니다.
+    무탠다드 데님(A)과 비무탠다드 경쟁사 데님(B)의 리뷰 4,877건을 BERTopic으로 비교해 부족한 요소를 정량화하고, 개선 방향을 제안했습니다.
+  </p>
+
+  <div class="flow reveal">
+    <div class="flow-item">
+      <div class="flow-dot green">🕷️</div>
+      <div class="flow-body">
+        <h3>크롤링: 403 오류 해결</h3>
+        <p>무신사 리뷰 페이지는 봇 차단이 강합니다. User-Agent 로테이션과 요청 간격 조절로
+        403 오류를 해결하고 데님·슬랙스 리뷰 4,877건을 수집했습니다.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot blue">🔤</div>
+      <div class="flow-body">
+        <h3>전처리: Kiwi 형태소 분석</h3>
+        <p>한국어 특화 형태소 분석기 Kiwi로 명사·형용사 추출. 의류 도메인 특화 불용어 사전을 직접 구축해
+        노이즈(배송, 포장 등 제품 외 언급)를 제거했습니다.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot blue">🧠</div>
+      <div class="flow-body">
+        <h3>BERTopic: BERT + UMAP + HDBSCAN</h3>
+        <p>다국어 BERT 임베딩으로 문장 의미를 벡터화 → UMAP으로 차원 축소 → HDBSCAN으로 밀도 기반 클러스터링.
+        전통 LDA 대비 문맥을 반영한 토픽을 자동 도출했습니다.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot orange">📊</div>
+      <div class="flow-body">
+        <h3>경쟁사 비교: 비율 검정</h3>
+        <p>데님 vs 슬랙스 각 토픽 언급 비율을 Fisher's Exact Test와 이항 검정으로 유의성 확인.
+        착용감 불만 +5.2%p, 세탁 물빠짐 0.59% 언급 등을 통계적으로 도출했습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- TOPICS -->
+<section id="topics">
+  <div class="section-label reveal">핵심 분석 결과</div>
+  <h2 class="reveal">BERTopic 14개 토픽 · 주요 발견</h2>
+  <p class="lead reveal">데님 리뷰에서 도출된 14개 토픽 중 경쟁사 대비 부정적 차이가 큰 4개를 집중 분석했습니다.</p>
+
+  <div class="topic-grid reveal">
+
+    <div class="topic-card">
+      <div class="topic-num">Topic #3 · 핵심 문제</div>
+      <h3>세탁 후 물빠짐</h3>
+      <p>데님 특유의 인디고 염료가 세탁 시 빠진다는 언급. 전체 리뷰의 0.59%로
+      슬랙스 대비 7.3배 높은 빈도. "흰 옷에 물들었다", "색 빠짐 심함" 등이 대표 키워드.</p>
+      <div class="topic-bar"><div class="topic-fill" style="width:73%; background:var(--red);"></div></div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-top:0.4rem;">슬랙스 대비 7.3배</p>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-num">Topic #1 · 불만 1위</div>
+      <h3>착용감 · 허벅지 여유</h3>
+      <p>허벅지가 타이트하다는 착용감 불만. 데님 15.8% vs 슬랙스 10.6%로
+      +5.2%p 차이. 스트레치 원단 미적용 제품 라인에서 집중 발생.</p>
+      <div class="topic-bar"><div class="topic-fill" style="width:52%;"></div></div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-top:0.4rem;">데님-슬랙스 +5.2%p</p>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-num">Topic #7 · 긍정 요소</div>
+      <h3>핏 · 실루엣 만족</h3>
+      <p>스트레이트 핏의 깔끔함, 길이 만족 언급. 슬랙스와 비슷한 수준의 긍정 비율(35.2%).
+      외형에 대한 만족도는 높아 착용 후 불만(세탁, 착용감)과의 대비가 뚜렷.</p>
+      <div class="topic-bar"><div class="topic-fill" style="width:35%;"></div></div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-top:0.4rem;">긍정 언급 35.2%</p>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-num">Topic #11 · 개선 기회</div>
+      <h3>사이즈 가이드 불일치</h3>
+      <p>"사이즈 표 믿고 샀는데 실제와 다름" 언급. 데님 허리-허벅지 비율이 슬랙스와 달라
+      기존 구매 경험으로 예측이 어렵다는 UX 문제.</p>
+      <div class="topic-bar"><div class="topic-fill" style="width:28%; background:var(--orange);"></div></div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-top:0.4rem;">반품 전환 주요 원인</p>
+    </div>
+
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- COMPARE -->
+<section id="compare">
+  <div class="section-label reveal">경쟁사 비교</div>
+  <h2 class="reveal">무탠다드 데님 vs 슬랙스 토픽 비율 비교</h2>
+  <table class="compare-table reveal">
+    <thead>
+      <tr>
+        <th>토픽</th>
+        <th>데님 언급률</th>
+        <th>슬랙스 언급률</th>
+        <th>차이</th>
+        <th>유의성</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>세탁 물빠짐</td>
+        <td>0.59%</td>
+        <td>0.08%</td>
+        <td style="color:var(--red);">+0.51%p (+7.3배)</td>
+        <td><span class="tag bad">Fisher p&lt;0.05</span></td>
+      </tr>
+      <tr>
+        <td>착용감 · 허벅지</td>
+        <td>15.8%</td>
+        <td>10.6%</td>
+        <td style="color:var(--red);">+5.2%p</td>
+        <td><span class="tag bad">이항검정 유의</span></td>
+      </tr>
+      <tr>
+        <td>사이즈 불일치</td>
+        <td>12.1%</td>
+        <td>9.4%</td>
+        <td style="color:var(--orange);">+2.7%p</td>
+        <td><span class="tag mid">경계 유의</span></td>
+      </tr>
+      <tr>
+        <td>핏 · 실루엣 만족</td>
+        <td>35.2%</td>
+        <td>37.8%</td>
+        <td style="color:var(--muted);">-2.6%p</td>
+        <td><span class="tag good">비유의</span></td>
+      </tr>
+      <tr>
+        <td>소재 · 두께감</td>
+        <td>18.3%</td>
+        <td>16.1%</td>
+        <td style="color:var(--muted);">+2.2%p</td>
+        <td><span class="tag good">비유의</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box reveal">
+    <h3>핵심 인사이트</h3>
+    <p style="margin-bottom:1.2rem; color: var(--text);">
+      데님 외형(핏·실루엣)에 대한 만족도는 슬랙스와 대등합니다.
+      문제는 <strong>사용 경험</strong> — 세탁 물빠짐과 착용감 불만이 재구매와 리뷰 점수를 끌어내립니다.
+    </p>
+    <div style="display:flex; gap:3rem; flex-wrap:wrap; align-items:center;">
+      <div>
+        <span class="big-num">+5.2%p</span>
+        <p style="color:var(--muted); font-size:0.85rem;">슬랙스 대비 착용감 불만 비율</p>
+      </div>
+      <div style="color:var(--muted);">→</div>
+      <div>
+        <p style="color:var(--text); font-size:1rem; line-height:1.8;">
+          <strong style="color:var(--green);">스트레치 데님 라인 출시</strong> +<br>
+          <strong style="color:var(--green);">세탁 가이드 상세화</strong>로<br>
+          재구매율 개선 기대
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- ACTION PLAN -->
+<section>
+  <div class="section-label reveal">마케팅 제언</div>
+  <h2 class="reveal">3가지 액션 플랜</h2>
+  <div class="action-grid reveal">
+    <div class="action-step">
+      <span class="action-icon">👖</span>
+      <h4>스트레치 데님 라인 확대</h4>
+      <p>착용감 불만의 근본 해결. 허벅지 여유 있는 스트레치 원단 SKU 추가.</p>
+    </div>
+    <div class="action-step">
+      <span class="action-icon">🧺</span>
+      <h4>세탁 가이드 상세화</h4>
+      <p>상품 페이지에 단독 세탁·냉수 세탁·뒤집기 권장 사항 명시. 물빠짐 기대치 관리.</p>
+    </div>
+    <div class="action-step">
+      <span class="action-icon">📏</span>
+      <h4>사이즈 가이드 개선</h4>
+      <p>허리·허벅지·밑위 치수를 슬랙스와 분리해 제공. 기존 고객의 사이즈 예측 정확도 향상.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-label reveal">기술 스택</div>
+  <h2 class="reveal">사용 기술</h2>
+  <div class="tech-grid reveal">
+    <span class="tech-badge python">Python</span>
+    <span class="tech-badge python">pandas</span>
+    <span class="tech-badge tool">Requests</span>
+    <span class="tech-badge tool">BeautifulSoup</span>
+    <span class="tech-badge stat">Kiwi 형태소</span>
+    <span class="tech-badge nlp">BERTopic</span>
+    <span class="tech-badge nlp">sentence-transformers</span>
+    <span class="tech-badge nlp">UMAP</span>
+    <span class="tech-badge nlp">HDBSCAN</span>
+    <span class="tech-badge stat">scipy (Fisher / 이항검정)</span>
+    <span class="tech-badge tool">matplotlib</span>
+    <span class="tech-badge tool">seaborn</span>
+  </div>
+
+
+<footer>
+  <p class="footer-name">전우진 · Jeon Woojin</p>
+  <p>Data Analyst Portfolio · <a href="전우진 포트포리오.html" style="color:var(--green); text-decoration:none;">포트폴리오 홈으로</a></p>
+</footer>
+
+<script>
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    bar.style.transform = `scaleX(${pct})`;
+  });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

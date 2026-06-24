@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LH 신도시 교통 안전 분석 | 데이터 분석 포트폴리오</title>
+<style>
+  :root {
+    --blue: #4E79A7;
+    --purple: #9B72CF;
+    --red: #E15759;
+    --green: #59A14F;
+    --orange: #F28E2B;
+    --yellow: #F1CE63;
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #4E79A7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo { font-weight: 700; font-size: 0.9rem; color: var(--blue); letter-spacing: 0.05em; }
+  .nav-back {
+    font-size: 0.85rem; color: var(--muted); text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(78,121,167,0.13) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 70%, rgba(155,114,207,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(78,121,167,0.12);
+    border: 1px solid rgba(78,121,167,0.35);
+    border-radius: 999px;
+    font-size: 0.8rem; color: var(--blue);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 800; line-height: 1.2;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--muted); max-width: 640px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-kpi {
+    display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 2rem;
+    min-width: 140px; text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(78,121,167,0.2); }
+  .kpi-card .kpi-num { font-size: 2rem; font-weight: 800; color: var(--blue); display: block; }
+  .kpi-card .kpi-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+  section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--blue); text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1rem; }
+  .lead { color: var(--muted); font-size: 1.05rem; max-width: 680px; margin-bottom: 3rem; }
+  .full-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  .flow { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .flow::before {
+    content: ''; position: absolute; left: 24px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--blue), var(--purple), var(--green));
+    opacity: 0.35;
+  }
+  .flow-item {
+    display: flex; gap: 2rem; align-items: flex-start;
+    padding: 2rem 0; position: relative;
+  }
+  .flow-dot {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+    position: relative; z-index: 1; border: 2px solid;
+  }
+  .flow-dot.blue   { background: rgba(78,121,167,0.15); border-color: var(--blue); }
+  .flow-dot.purple { background: rgba(155,114,207,0.15); border-color: var(--purple); }
+  .flow-dot.green  { background: rgba(89,161,79,0.15);  border-color: var(--green); }
+  .flow-dot.orange { background: rgba(242,142,43,0.15); border-color: var(--orange); }
+  .flow-dot.red    { background: rgba(225,87,89,0.15);  border-color: var(--red); }
+  .flow-body { flex: 1; }
+  .flow-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .flow-body p { color: var(--muted); font-size: 0.95rem; }
+
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .result-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .result-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .result-card.blue::before   { background: var(--blue); }
+  .result-card.purple::before { background: var(--purple); }
+  .result-card.green::before  { background: var(--green); }
+  .result-card.orange::before { background: var(--orange); }
+  .result-pill {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    padding: 0.2rem 0.7rem; border-radius: 999px; margin-bottom: 0.8rem;
+  }
+  .result-pill.blue   { background: rgba(78,121,167,0.15); color: var(--blue); }
+  .result-pill.purple { background: rgba(155,114,207,0.15); color: var(--purple); }
+  .result-pill.green  { background: rgba(89,161,79,0.15);  color: var(--green); }
+  .result-pill.orange { background: rgba(242,142,43,0.15); color: var(--orange); }
+  .result-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .result-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+  .result-stat {
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 1rem;
+  }
+  .stat-item .stat-val { font-size: 1.3rem; font-weight: 800; display: block; }
+  .stat-item .stat-desc { font-size: 0.73rem; color: var(--muted); }
+
+  .insight-box {
+    background: linear-gradient(135deg, rgba(78,121,167,0.08) 0%, rgba(155,114,207,0.05) 100%);
+    border: 1px solid rgba(78,121,167,0.25);
+    border-radius: 16px; padding: 2.4rem; margin: 2.5rem 0;
+  }
+  .insight-box h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--blue); }
+  .insight-box p  { color: var(--muted); margin-bottom: 0.5rem; }
+  .big-num { font-size: 2.5rem; font-weight: 900; color: var(--purple); }
+
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+  .data-table th {
+    text-align: left; padding: 0.8rem 1rem;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.8rem; color: var(--muted); font-weight: 600; letter-spacing: 0.05em;
+  }
+  .data-table td {
+    padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .tag { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .tag.high   { background: rgba(89,161,79,0.15);  color: var(--green); }
+  .tag.mid    { background: rgba(242,142,43,0.15); color: var(--orange); }
+  .tag.alert  { background: rgba(225,87,89,0.15);  color: var(--red); }
+  .tag.purple { background: rgba(155,114,207,0.15); color: var(--purple); }
+
+  .policy-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border-radius: 16px; overflow: hidden; margin-top: 1.5rem;
+  }
+  .policy-step {
+    background: var(--surface); padding: 1.6rem; text-align: center;
+  }
+  .policy-step .policy-icon { font-size: 1.8rem; display: block; margin-bottom: 0.6rem; }
+  .policy-step h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .policy-step p  { color: var(--muted); font-size: 0.8rem; }
+
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+  .tech-badge {
+    padding: 0.45rem 1rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; border: 1px solid;
+    transition: transform 0.15s;
+  }
+  .tech-badge:hover { transform: scale(1.05); }
+  .tech-badge.python { background: rgba(78,121,167,0.1); border-color: var(--blue); color: var(--blue); }
+  .tech-badge.stat   { background: rgba(89,161,79,0.1); border-color: var(--green); color: var(--green); }
+  .tech-badge.gis    { background: rgba(155,114,207,0.1); border-color: var(--purple); color: var(--purple); }
+  .tech-badge.viz    { background: rgba(242,142,43,0.1); border-color: var(--orange); color: var(--orange); }
+
+  .deliverables { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+  .del-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem; transition: transform 0.2s;
+  }
+  .del-card:hover { transform: translateY(-3px); }
+  .del-icon { font-size: 2rem; margin-bottom: 0.8rem; display: block; }
+  .del-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .del-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.6; }
+
+  footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    text-align: center; padding: 2.5rem;
+  }
+  footer p { color: var(--muted); font-size: 0.83rem; }
+  footer .footer-name { font-weight: 700; color: var(--text); font-size: 1rem; margin-bottom: 0.4rem; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  #progress {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--blue), var(--purple));
+    transform-origin: left; transform: scaleX(0);
+    z-index: 99; transition: transform 0.1s;
+  }
+
+  @media (max-width: 640px) {
+    .hero-kpi { gap: 1rem; }
+    .kpi-card { min-width: 120px; padding: 1rem 1.2rem; }
+    .policy-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <a class="nav-back" href="전우진 포트포리오.html">← 포트폴리오 홈</a>
+  <div class="nav-links">
+    <a href="#overview">개요</a>
+    <a href="#findings">분석 결과</a>
+    <a href="#policy">정책 제언</a>
+    <a href="#stack">기술 스택</a>
+  </div>
+</nav>
+
+<div class="hero" id="top">
+  <span class="hero-badge">COMPAS 경진대회 · LH 한국토지주택공사 주최 · 2026</span>
+  <h1>3기 신도시 교통 인프라<br><span>취약계층 안전 분석</span></h1>
+  <p class="hero-sub">
+    4개 신도시 25종 공공데이터를 통합해 어린이·노인 교통사고 위험 요인을 GIS 기반으로 분석하고,
+    K-Means 클러스터 전이와 음이항 회귀로 위험 구간과 핵심 요인을 분석하고, 시설물 배치 방향을 제안했습니다.
+  </p>
+  <div class="hero-kpi">
+    <div class="kpi-card">
+      <span class="kpi-num">25종</span>
+      <div class="kpi-label">통합 공공데이터</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">4개</span>
+      <div class="kpi-label">신도시 분석</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">×2.38</span>
+      <div class="kpi-label">우회전 위험 IRR</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">4.80배</span>
+      <div class="kpi-label">시나리오 B/A 격차</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">38p</span>
+      <div class="kpi-label">발표자료</div>
+    </div>
+  </div>
+</div>
+
+<hr class="full-divider">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label reveal">프로젝트 개요</div>
+  <h2 class="reveal">신도시에 이사 오는 아이들과 노인은 안전한가?</h2>
+  <p class="lead reveal">
+    3기 신도시 입주 초기, 교통 인프라가 갖춰지기 전 어린이·노인 교통사고 위험이 집중됩니다.
+    LH 주최 COMPAS 경진대회 출전 프로젝트로, 4개 신도시 25종 공공데이터를 통합해
+    취약 구간을 정량적으로 분석하고, 시설물 배치 방향을 데이터 기반으로 제안했습니다.
+  </p>
+
+  <div class="flow reveal">
+    <div class="flow-item">
+      <div class="flow-dot blue">📦</div>
+      <div class="flow-body">
+        <h3>25종 데이터 통합 · GIS 매핑</h3>
+        <p>교통사고 데이터(TAAS), 도로망, 보행로, 스쿨존·실버존, 신호등·횡단보도,
+        인구 분포 등 25종 공공데이터를 GeoPandas와 GEOJSON으로 신도시 격자 단위로 통합했습니다.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot purple">🗺️</div>
+      <div class="flow-body">
+        <h3>K-Means + PCA: 위험 클러스터 분류 → 하남교산 전이</h3>
+        <p>토지이용 피처 5종 기반 PCA + K-Means(k=4)로 기존 4개 신도시(동탄·위례·판교·하남미사)를 군집화.
+        학습된 모델을 3기 신도시 하남교산에 적용(predict only, Data Leakage 방지).
+        C2 공원경계 노인고위험형이 37.1%로 신도시 평균(19.0%) 대비 +18.1%p 초과 — 사전 위험 예측.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot orange">📊</div>
+      <div class="flow-body">
+        <h3>음이항 회귀: 사고 발생 위험 요인 정량화</h3>
+        <p>교통사고 건수는 과산포(Overdispersion) 분포 — 포아송이 아닌 음이항 회귀 적용.
+        우회전 여부가 IRR 2.38배(p&lt;0.01)로 가장 강한 위험 요인. 횡단보도 수·버스정류장 수·CCTV 여부 모두 유의(p&lt;0.05).</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot green">💡</div>
+      <div class="flow-body">
+        <h3>시나리오 비교 → 정책 우선순위 도출</h3>
+        <p>시나리오 A(안전한 통학 환경: 우회전 없음)와 B(위험 통학 환경: 우회전 포함) 비교 시
+        예측 위험도 4.80배 차이(380.2% 증가). 우회전 구조 자체를 제어하는 것이 시설 추가보다 효과적임을 정량화.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- DATA -->
+<section>
+  <div class="section-label reveal">데이터 현황</div>
+  <h2 class="reveal">분석대상지 4개 기존 신도시 × 25종 공공데이터</h2>
+  <table class="data-table reveal">
+    <thead>
+      <tr>
+        <th>신도시 (분석대상지)</th>
+        <th>위치</th>
+        <th>군집 특성</th>
+        <th>권고 시설</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="dot" style="background:#E15759"></span>화성 동탄1·2</td>
+        <td>경기 화성시</td>
+        <td>도로·주거 혼재 구조 — 어린이 잠재위험 구간 광범위 분포</td>
+        <td><span class="tag mid">가드펜스·CCTV</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#4E79A7"></span>위례</td>
+        <td>서울·성남·하남 경계</td>
+        <td>공원경계 보행 구간에 노인 사고 집중 — 4개 신도시 중 사고율 최고(0.363)</td>
+        <td><span class="tag alert">가드펜스·우회전 전광판</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#9B72CF"></span>성남 판교</td>
+        <td>경기 성남시</td>
+        <td>기타시설 밀집 구간 — 도로 미등재 사각지대, 노인 위험 집중</td>
+        <td><span class="tag mid">우회전 전광판 우선</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#59A14F"></span>하남 미사</td>
+        <td>경기 하남시</td>
+        <td>공원경계 노인 위험 + 이면도로 어린이 위험 — 복합 구조</td>
+        <td><span class="tag mid">복합 시설물 필요</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.8rem;">* 교통사고(TAAS), 도로망, 보행로, 스쿨존·실버존, 신호체계, 인구분포 등 25종 통합 | 적용대상지(3기 신도시): 하남교산</p>
+
+  <div style="margin-top: 1.6rem; padding: 1.2rem 1.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+    <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 0.8rem; text-transform: uppercase;">K-Means 클러스터 4유형 (토지이용 기반)</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem; font-size: 0.82rem;">
+      <div><span style="color:var(--red); font-weight:700;">C0</span> <span style="color:var(--muted);">도로교통 복합위험형</span> — 사고율 0.173</div>
+      <div><span style="color:var(--blue); font-weight:700;">C1</span> <span style="color:var(--muted);">시설경계 노인위험형</span> — 사고율 0.274</div>
+      <div><span style="color:var(--orange); font-weight:700;">C2</span> <span style="color:var(--muted);">공원경계 노인고위험형</span> — 사고율 0.363 ★</div>
+      <div><span style="color:var(--green); font-weight:700;">C3</span> <span style="color:var(--muted);">주거이면 어린이잠재위험형</span> — 사고율 0.062</div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- FINDINGS -->
+<section id="findings">
+  <div class="section-label reveal">핵심 분석 결과</div>
+  <h2 class="reveal">모델별 주요 발견</h2>
+  <p class="lead reveal">GIS 시각화, 클러스터 분석, 음이항 회귀를 함께 사용해 같은 결론이 나오는지 교차 확인했습니다.</p>
+
+  <div class="result-grid reveal">
+
+    <div class="result-card blue">
+      <span class="result-pill blue">K-Means + PCA</span>
+      <h3>클러스터 전이: 하남교산 C2 37.1%, 평균 대비 +18.1%p</h3>
+      <p>기존 4개 신도시로 학습한 K-Means(k=4) 모델을 미개발 3기 신도시 하남교산에 적용.
+      C2 공원경계 노인고위험형이 37.1%로 기존 신도시 평균(19.0%)을 +18.1%p 초과.
+      가장 유사한 신도시는 위례(C2 약 50% 압도) — 동일 사고 패턴 반복 위험 선제 포착.</p>
+      <div class="result-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">k=4</span>
+          <span class="stat-desc">최적 클러스터 수</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--red)">+18.1%p</span>
+          <span class="stat-desc">C2 초과 (하남교산)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card purple">
+      <span class="result-pill purple">음이항 회귀 (IRR)</span>
+      <h3>우회전 교차로 IRR 2.38배 — 4개 변수 모두 유의</h3>
+      <p>교통사고 건수 과산포 확인 후 음이항 회귀 적용(Pseudo R²=0.21).
+      우회전 여부가 IRR 2.38배(p&lt;0.01)로 가장 강한 위험 요인.
+      횡단보도 수·버스정류장 수·CCTV 여부도 모두 유의(p&lt;0.05).
+      CCTV 양의 계수는 위험 구간에 우선 설치된 역인과 관계로 해석.</p>
+      <div class="result-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--purple)">IRR 2.38</span>
+          <span class="stat-desc">우회전 교차로</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--orange)">4개</span>
+          <span class="stat-desc">유의 변수</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card green">
+      <span class="result-pill green">시나리오 비교</span>
+      <h3>위험 통학 환경, 안전 환경 대비 4.80배 위험</h3>
+      <p>시나리오 A(안전한 통학 환경: 횡단보도 1·버스정류장 1·우회전 없음·CCTV 있음) vs
+      시나리오 B(위험 환경: 횡단보도 2·버스정류장 2·우회전 있음·CCTV 있음).
+      예측 위험도 0.0384 → 0.1844로 4.80배 차이(+380.2%). 우회전이 결정적 변수.</p>
+      <div class="result-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--green)">×4.80</span>
+          <span class="stat-desc">시나리오 B/A 효과</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card orange">
+      <span class="result-pill orange">GIS 시각화</span>
+      <h3>격자 기반 위험 히트맵 · 취약 구간 좌표 특정</h3>
+      <p>신도시 전역을 100m×100m 격자로 분할 후 사고 밀도, 인프라 부족 지수,
+      취약계층 인구 비율을 레이어 합산. GEOJSON 기반 인터랙티브 지도로
+      경진대회 제출물로 완성했습니다.</p>
+      <div class="result-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--orange)">100m</span>
+          <span class="stat-desc">격자 단위</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">3개</span>
+          <span class="stat-desc">레이어 합산</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="insight-box reveal">
+    <h3>핵심 인사이트</h3>
+    <p style="margin-bottom:1.2rem; color: var(--text);">
+      우회전 구조 하나가 위험도를 4.80배 바꾼다는 결과가 인상적이었습니다.
+      시설물을 늘리는 것보다 설계 단계에서 우회전 구조를 제어하는 쪽이 효과적일 수 있다는 방향을 제안했습니다.
+    </p>
+    <div style="display:flex; gap:3rem; flex-wrap:wrap; align-items:center;">
+      <div>
+        <span class="big-num">4.80배</span>
+        <p style="color:var(--muted); font-size:0.85rem;">시나리오 B가 A보다 사고 예방 효과 큼</p>
+      </div>
+      <div style="color:var(--muted);">→</div>
+      <div>
+        <p style="color:var(--text); font-size:1rem; line-height:1.8;">
+          하남교산 C2 고위험 격자 우선 —<br>
+          <strong style="color:var(--purple);">가드펜스·우회전 전광판·지능형 CCTV</strong> 조합 배치 권고
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- POLICY -->
+<section id="policy">
+  <div class="section-label reveal">정책 제언</div>
+  <h2 class="reveal">단계별 개선 방향 제안</h2>
+  <p class="lead reveal">분석 결과를 바탕으로 시설물 배치의 우선순위를 단계별로 정리해 제안했습니다.</p>
+  <div class="policy-grid reveal">
+    <div class="policy-step">
+      <span class="policy-icon">🚦</span>
+      <h4>1단계 · 즉시 (입주 전)</h4>
+      <p>우회전 전용 교차로 상충 구간 신호 체계 보강. 무신호 횡단보도 우선 신호화.</p>
+    </div>
+    <div class="policy-step">
+      <span class="policy-icon">🏗️</span>
+      <h4>2단계 · 단기 (입주 1년 내)</h4>
+      <p>하남교산 C2 고위험 격자(공원경계 노인고위험형) 우선 — 가드펜스·우회전 전광판 설치.</p>
+    </div>
+    <div class="policy-step">
+      <span class="policy-icon">📊</span>
+      <h4>3단계 · 중기 (3년 모니터링)</h4>
+      <p>입주 후 실제 사고 데이터 재수집 → 클러스터 재분류 → 인프라 효과 검증 루프.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-label reveal">기술 스택</div>
+  <h2 class="reveal">사용 기술</h2>
+  <p class="lead reveal">공간 데이터 처리부터 통계 모델링까지 Python 기반으로 전 과정을 수행했습니다.</p>
+  <div class="tech-grid reveal">
+    <span class="tech-badge python">Python</span>
+    <span class="tech-badge python">pandas</span>
+    <span class="tech-badge python">numpy</span>
+    <span class="tech-badge gis">GeoPandas</span>
+    <span class="tech-badge gis">GEOJSON</span>
+    <span class="tech-badge gis">Shapely</span>
+    <span class="tech-badge stat">scikit-learn</span>
+    <span class="tech-badge stat">K-Means</span>
+    <span class="tech-badge stat">PCA</span>
+    <span class="tech-badge stat">음이항 회귀</span>
+    <span class="tech-badge stat">statsmodels</span>
+    <span class="tech-badge viz">matplotlib</span>
+    <span class="tech-badge viz">seaborn</span>
+    <span class="tech-badge viz">folium</span>
+  </div>
+
+  <div class="deliverables reveal" style="margin-top: 3rem;">
+    <div class="del-card">
+      <span class="del-icon">📊</span>
+      <h3>38페이지 발표자료</h3>
+      <p>GIS 히트맵, 클러스터 전이 시각화, 음이항 회귀 계수표를 포함한 완성 발표자료. COMPAS 경진대회 제출.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">🗺️</span>
+      <h3>인터랙티브 위험 지도</h3>
+      <p>GEOJSON 기반 격자 히트맵으로 구간별 위험 점수를 직관적으로 탐색할 수 있도록 경진대회 제출물에 포함.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">📋</span>
+      <h3>시설물 배치 우선순위 리스트</h3>
+      <p>음이항 회귀 IRR과 클러스터 결과를 결합해 구간별 우선순위를 수치화하고 배치 방향을 제안한 자료.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p class="footer-name">전우진 · Jeon Woojin</p>
+  <p>Data Analyst Portfolio · <a href="전우진 포트포리오.html" style="color:var(--blue); text-decoration:none;">포트폴리오 홈으로</a></p>
+</footer>
+
+<script>
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    bar.style.transform = `scaleX(${pct})`;
+  });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

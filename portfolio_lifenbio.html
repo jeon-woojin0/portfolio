@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>건강기능식품기업 매출 분석 | 데이터 분석 포트폴리오</title>
+<style>
+  :root {
+    --naver: #03C75A;
+    --blue: #4E79A7;
+    --red: #E15759;
+    --green: #59A14F;
+    --yellow: #F1CE63;
+    --orange: #F28E2B;
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #4E79A7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ───── NAV ───── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo { font-weight: 700; font-size: 0.9rem; color: var(--blue); letter-spacing: 0.05em; }
+  .nav-back {
+    font-size: 0.85rem; color: var(--muted); text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ───── HERO ───── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(78,121,167,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(78,121,167,0.12);
+    border: 1px solid rgba(78,121,167,0.35);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--blue);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--blue); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-kpi {
+    display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 2rem;
+    min-width: 140px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(78,121,167,0.2); }
+  .kpi-card .kpi-num { font-size: 2rem; font-weight: 800; color: var(--blue); display: block; }
+  .kpi-card .kpi-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ───── SECTIONS ───── */
+  section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--blue); text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1rem; }
+  .lead { color: var(--muted); font-size: 1.05rem; max-width: 680px; margin-bottom: 3rem; }
+
+  /* ───── DIVIDER ───── */
+  .full-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ───── STORY FLOW ───── */
+  .flow {
+    display: flex; flex-direction: column; gap: 0;
+    position: relative;
+  }
+  .flow::before {
+    content: '';
+    position: absolute; left: 24px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--blue), var(--red), var(--green));
+    opacity: 0.35;
+  }
+  .flow-item {
+    display: flex; gap: 2rem; align-items: flex-start;
+    padding: 2rem 0;
+    position: relative;
+  }
+  .flow-dot {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+    position: relative; z-index: 1;
+    border: 2px solid;
+  }
+  .flow-dot.blue  { background: rgba(78,121,167,0.15); border-color: var(--blue); }
+  .flow-dot.red   { background: rgba(225,87,89,0.15);  border-color: var(--red); }
+  .flow-dot.green { background: rgba(89,161,79,0.15);  border-color: var(--green); }
+  .flow-dot.orange{ background: rgba(242,142,43,0.15); border-color: var(--orange); }
+  .flow-body { flex: 1; }
+  .flow-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .flow-body p { color: var(--muted); font-size: 0.95rem; }
+
+  /* ───── HYPOTHESIS GRID ───── */
+  .hyp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+  .hyp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hyp-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .hyp-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .hyp-card.rejected::before { background: var(--red); }
+  .hyp-card.confirmed::before { background: var(--green); }
+  .hyp-card.insight::before { background: var(--blue); }
+  .hyp-pill {
+    display: inline-block; font-size: 0.72rem; font-weight: 700;
+    padding: 0.2rem 0.7rem; border-radius: 999px; margin-bottom: 0.8rem;
+  }
+  .hyp-pill.rejected  { background: rgba(225,87,89,0.15);  color: var(--red); }
+  .hyp-pill.confirmed { background: rgba(89,161,79,0.15);  color: var(--green); }
+  .hyp-pill.insight   { background: rgba(78,121,167,0.15); color: var(--blue); }
+  .hyp-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .hyp-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+  .hyp-stat {
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 1rem;
+  }
+  .stat-item .stat-val { font-size: 1.3rem; font-weight: 800; display: block; }
+  .stat-item .stat-desc { font-size: 0.73rem; color: var(--muted); }
+
+  /* ───── CHANNEL TABLE ───── */
+  .channel-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+  .channel-table th {
+    text-align: left; padding: 0.8rem 1rem;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.8rem; color: var(--muted); font-weight: 600; letter-spacing: 0.05em;
+  }
+  .channel-table td {
+    padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .channel-table tr:last-child td { border-bottom: none; }
+  .channel-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .tag { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .tag.high  { background: rgba(89,161,79,0.15);  color: var(--green); }
+  .tag.mid   { background: rgba(242,142,43,0.15); color: var(--orange); }
+  .tag.low   { background: rgba(225,87,89,0.15);  color: var(--red); }
+
+  /* ───── INSIGHT BOX ───── */
+  .insight-box {
+    background: linear-gradient(135deg, rgba(78,121,167,0.08) 0%, rgba(89,161,79,0.05) 100%);
+    border: 1px solid rgba(78,121,167,0.25);
+    border-radius: 16px;
+    padding: 2.4rem;
+    margin: 2.5rem 0;
+  }
+  .insight-box h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--blue); }
+  .insight-box p  { color: var(--muted); margin-bottom: 0.5rem; }
+  .insight-box .big-num { font-size: 2.5rem; font-weight: 900; color: var(--green); }
+
+  /* ───── TECH STACK ───── */
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+  .tech-badge {
+    padding: 0.45rem 1rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600;
+    border: 1px solid;
+    transition: transform 0.15s;
+  }
+  .tech-badge:hover { transform: scale(1.05); }
+  .tech-badge.python { background: rgba(78,121,167,0.1); border-color: var(--blue); color: var(--blue); }
+  .tech-badge.stat   { background: rgba(89,161,79,0.1); border-color: var(--green); color: var(--green); }
+  .tech-badge.viz    { background: rgba(242,142,43,0.1); border-color: var(--orange); color: var(--orange); }
+  .tech-badge.tool   { background: rgba(225,87,89,0.1); border-color: var(--red); color: var(--red); }
+
+  /* ───── DELIVERABLES ───── */
+  .deliverables { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+  .del-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem;
+    transition: transform 0.2s;
+  }
+  .del-card:hover { transform: translateY(-3px); }
+  .del-icon { font-size: 2rem; margin-bottom: 0.8rem; display: block; }
+  .del-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .del-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.6; }
+
+  /* ───── CRM SECTION ───── */
+  .crm-flow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+  .crm-step {
+    background: var(--surface);
+    padding: 1.6rem;
+    text-align: center;
+  }
+  .crm-step .crm-icon { font-size: 1.8rem; display: block; margin-bottom: 0.6rem; }
+  .crm-step h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .crm-step p  { color: var(--muted); font-size: 0.8rem; }
+
+  /* ───── FOOTER ───── */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 2.5rem;
+  }
+  footer p { color: var(--muted); font-size: 0.83rem; }
+  footer .footer-name { font-weight: 700; color: var(--text); font-size: 1rem; margin-bottom: 0.4rem; }
+
+  /* ───── ANIMATIONS ───── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ───── SCROLL PROGRESS ───── */
+  #progress {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--blue), var(--green));
+    transform-origin: left; transform: scaleX(0);
+    z-index: 99; transition: transform 0.1s;
+  }
+
+  @media (max-width: 640px) {
+    .hero-kpi { gap: 1rem; }
+    .kpi-card { min-width: 120px; padding: 1rem 1.2rem; }
+    .nav-links { gap: 1rem; }
+    .crm-flow { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">PORTFOLIO · 데이터 분석</span>
+  <div class="nav-links">
+    <a href="#overview">개요</a>
+    <a href="#findings">분석 결과</a>
+    <a href="#crm">CRM 제언</a>
+    <a href="#stack">기술 스택</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <span class="hero-badge">모두의연구소 아이펠톤 · 2026</span>
+  <h1>건강기능식품기업<br><span>매출 채널 분석 프로젝트</span></h1>
+  <p class="hero-sub">
+    4개 판매 채널 43만 건 주문 데이터를 분석해 "외부 채널이 자사몰을 잠식한다"는
+    통념을 통계적으로 기각하고, 진짜 이탈 원인과 CRM 솔루션을 도출했습니다.
+  </p>
+  <div class="hero-kpi">
+    <div class="kpi-card">
+      <span class="kpi-num">43만</span>
+      <div class="kpi-label">분석 주문 건수</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">5개</span>
+      <div class="kpi-label">검증 가설</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">105p</span>
+      <div class="kpi-label">결과보고서</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">15개월</span>
+      <div class="kpi-label">데이터 기간</div>
+    </div>
+  </div>
+</div>
+
+<hr class="full-divider">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label reveal">프로젝트 개요</div>
+  <h2 class="reveal">왜 자사몰 매출이 떨어지는가?</h2>
+  <p class="lead reveal">
+    건강기능식품기업은 자사몰·스마트스토어·공동구매·외부판매 4개 채널에서 건강기능식품을 판매합니다.
+    외부 채널이 자사몰 고객을 빼앗아 간다는 내부 우려를 데이터로 검증하고,
+    실질적인 매출 저하 원인을 밝혀 CRM 전략으로 연결하는 것이 이 프로젝트의 목표였습니다.
+  </p>
+
+  <!-- Story Flow -->
+  <div class="flow reveal">
+    <div class="flow-item">
+      <div class="flow-dot blue">📊</div>
+      <div class="flow-body">
+        <h3>Q. 외부 채널이 자사몰을 잠식하는가?</h3>
+        <p>공동구매·외부판매 채널의 성장이 자사몰 매출을 빼앗는다는 가설. 비모수 5종 + Segmented Regression + PELT-RBF 변화점 탐지로 다각 검증.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot red">❌</div>
+      <div class="flow-body">
+        <h3>결론: 잠식이 아닌 보완재</h3>
+        <p>비모수 검정에서 공동구매 증가일에 자사몰 감소 패턴 없음. Segmented Regression p=0.166(비유의). PELT-RBF 변화점 0개. Fisher's Exact Test(OR=1.85)에서 두 채널이 오히려 같은 방향으로 동조화. 잠식 가설 기각.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot blue">🔍</div>
+      <div class="flow-body">
+        <h3>그렇다면 왜 자사몰 리텐션은 70.7%로 최하위인가?</h3>
+        <p>채널 잠식이 아닌 내부 이탈 문제로 방향 전환. 자사몰 유입 경로 무관 1회성 80~85%, 90일 이탈률 85~93%.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot orange">⚠️</div>
+      <div class="flow-body">
+        <h3>전환 병목 확인</h3>
+        <p>외부채널 첫 구매 고객 12,436명 중 자사몰 전환은 1.6%(197명), 소요 중앙값 100일. 이 전환만 이뤄져도 LTV가 2~3배.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <div class="flow-dot green">💡</div>
+      <div class="flow-body">
+        <h3>소진주기 기반 CRM 알고리즘 제안</h3>
+        <p>상품별 소진주기 × 구매수량 = 소진예정일 도출 → 이탈 전 타이밍에 쿠폰 자동 발송. 장기 미재구매 48.15%를 타겟으로 임팩트 시뮬레이션까지 완성.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- DATA -->
+<section>
+  <div class="section-label reveal">데이터 현황</div>
+  <h2 class="reveal">분석에 사용한 데이터</h2>
+  <table class="channel-table reveal">
+    <thead>
+      <tr>
+        <th>채널</th>
+        <th>고객 수</th>
+        <th>비율</th>
+        <th>LTV 중앙값</th>
+        <th>특징</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="dot" style="background:#4E79A7"></span>자사몰</td>
+        <td>65,381명</td>
+        <td>83.3%</td>
+        <td>109,500원</td>
+        <td><span class="tag high">단가 최고</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#03C75A"></span>스마트스토어</td>
+        <td>—</td>
+        <td>—</td>
+        <td>89,800원</td>
+        <td><span class="tag mid">그로우랩 중심</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#E15759"></span>공동구매</td>
+        <td>10,754명</td>
+        <td>13.7%</td>
+        <td>70,350원</td>
+        <td><span class="tag mid">재방문율 1.4회</span></td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#9D7660"></span>외부판매</td>
+        <td>—</td>
+        <td>—</td>
+        <td>77,970원</td>
+        <td><span class="tag low">1회성, 고단가</span></td>
+      </tr>
+      <tr style="background: rgba(78,121,167,0.06)">
+        <td><strong>✨ 양채널 고객</strong></td>
+        <td><strong>1,682명</strong></td>
+        <td><strong>2.1%</strong></td>
+        <td><strong style="color:#59A14F">211,573원</strong></td>
+        <td><span class="tag high">LTV 2~3배 ↑</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.8rem;">* 주문번호 기준 dedup, receiver_key(수령자) 고객 식별, 433,264행 58컬럼</p>
+</section>
+
+<hr class="full-divider">
+
+<!-- FINDINGS -->
+<section id="findings">
+  <div class="section-label reveal">핵심 분석 결과</div>
+  <h2 class="reveal">5개 가설 검증 요약</h2>
+  <p class="lead reveal">비모수 통계를 기본으로, Segmented Regression과 PELT-RBF 변화점 탐지를 추가해 다각 검증했습니다.</p>
+
+  <div class="hyp-grid reveal">
+
+    <div class="hyp-card rejected">
+      <span class="hyp-pill rejected">가설 3 기각</span>
+      <h3>외부채널은 자사채널을 잠식하지 않는다</h3>
+      <p>비모수 5종(Spearman·Wilcoxon·Mann-Whitney U·Fisher's·이항검정) 모두 잠식 방향 비유의. Segmented Regression 공동구매 계수 ≈ 0(p=0.166). PELT-RBF 변화점 0개. Fisher's Exact Test(OR=1.85, p=0.004)에서 두 채널의 같은 방향 동조화 확인. 외부채널 매출 증가분 88.1%가 신규 고객 유입.</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--green)">기각</span>
+          <span class="stat-desc">잠식 가설</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">OR 1.85</span>
+          <span class="stat-desc">채널 동조화</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card rejected">
+      <span class="hyp-pill rejected">Q2-3 기각</span>
+      <h3>자사몰 고객은 공동구매 이벤트 기간에 이탈하지 않는다</h3>
+      <p>자사몰 고객 66,370명 중 공동구매 혼용 958명(1.4%). 캠페인 기간 1인당 자사채널 매출 차이 p=0.5682 → 통계적으로 유의하지 않음.</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">1.4%</span>
+          <span class="stat-desc">혼용 고객 비율</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--muted)">p=0.57</span>
+          <span class="stat-desc">잠식 비유의</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card confirmed">
+      <span class="hyp-pill confirmed">Q2-4 핵심 발견</span>
+      <h3>양채널 고객이 핵심 VIP</h3>
+      <p>자사 only vs 외부 only는 구매횟수에서 유의한 차이 없음(p=0.095). 그러나 양채널 고객은 중앙값 구매횟수 3회, LTV 21.2만원으로 전용 고객의 2~3배.</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--green)">21.2만</span>
+          <span class="stat-desc">양채널 LTV 중앙값</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--green)">3회</span>
+          <span class="stat-desc">양채널 구매횟수 중앙값</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card insight">
+      <span class="hyp-pill insight">섹션 4 발견</span>
+      <h3>자사몰 vs 스마트스토어: 대효과 차이</h3>
+      <p>Mann-Whitney U, 누적매출 효과크기 r=0.534(대효과). 자사몰 109,500원 > 스마트스토어 89,800원. 공동구매 vs 외부판매도 구매횟수 r=0.584(대효과).</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">r=0.53</span>
+          <span class="stat-desc">대효과 (자사몰)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card rejected">
+      <span class="hyp-pill rejected">가설 5 전환 병목</span>
+      <h3>외부채널 → 자사몰 전환율 1.6%</h3>
+      <p>외부채널 첫 구매 12,436명 중 197명만 자사몰 전환(1.6%), 전환 소요 중앙값 100일. 자사몰 유입 후 1회성 이탈율 80~85%, 90일 이탈률 85~93%.</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--red)">1.6%</span>
+          <span class="stat-desc">전환율</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--red)">100일</span>
+          <span class="stat-desc">전환 소요 중앙값</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card insight">
+      <span class="hyp-pill insight">섹션 5 발견</span>
+      <h3>브랜드별 자사몰 단가 차이가 핵심</h3>
+      <p>Kruskal-Wallis η²=0.178 대효과. 흑보목 20.5만 &gt; 혜인서 19.5만 &gt; 파이토뉴트리 15.1만 &gt; 그로우랩 9.0만 &gt; 시즈노프 6.9만원.</p>
+      <div class="hyp-stat">
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">η²=0.18</span>
+          <span class="stat-desc">브랜드 효과크기</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="insight-box reveal">
+    <h3>핵심 인사이트</h3>
+    <p style="margin-bottom:1.2rem; color: var(--text);">
+      외부채널은 자사채널의 경쟁자가 아닌 <strong>신규 고객 유입 채널</strong>입니다.
+      진짜 문제는 유입된 고객이 재구매로 이어지지 않는다는 것입니다.
+    </p>
+    <div style="display:flex; gap:3rem; flex-wrap:wrap; align-items:center;">
+      <div>
+        <span class="big-num">48.15%</span>
+        <p style="color:var(--muted); font-size:0.85rem;">장기 미재구매 고객 비율 (45,296건)</p>
+      </div>
+      <div style="color:var(--muted);">→</div>
+      <div>
+        <p style="color:var(--text); font-size:1rem; line-height:1.8;">
+          소진예정일 전 <strong style="color:var(--orange);">타이밍 쿠폰</strong> 발송으로<br>
+          재구매율 <strong style="color:var(--green);">3~10%</strong> 개선 기대
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- CRM -->
+<section id="crm">
+  <div class="section-label reveal">비즈니스 제언</div>
+  <h2 class="reveal">소진주기 기반 CRM 알고리즘</h2>
+  <p class="lead reveal">
+    상품별 소진주기 데이터를 활용해 고객이 제품을 다 쓸 시점을 예측하고,
+    이탈 전 최적 타이밍에 자동으로 구매 리마인드를 발송하는 알고리즘입니다.
+  </p>
+
+  <div class="crm-flow reveal">
+    <div class="crm-step">
+      <span class="crm-icon">📦</span>
+      <h4>소진예정일 산출</h4>
+      <p>주문일 + 단위 소진주기 × 주문수량</p>
+    </div>
+    <div class="crm-step">
+      <span class="crm-icon">🎯</span>
+      <h4>고객군 자동 분류</h4>
+      <p>🟢 정시 리마인드 / 🟡 소진 경과 / 🔴 장기 미재구매</p>
+    </div>
+    <div class="crm-step">
+      <span class="crm-icon">📨</span>
+      <h4>채널별 발송</h4>
+      <p>자사몰: SMS·이메일 / 스마트스토어: 알림톡</p>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:1rem; margin-top:1.5rem;" class="reveal">
+    <div style="background:rgba(89,161,79,0.08); border:1px solid rgba(89,161,79,0.25); border-radius:12px; padding:1.4rem;">
+      <div style="color:var(--green); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">보수적 시나리오 (3%)</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 1,358건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+    </div>
+    <div style="background:rgba(242,142,43,0.08); border:1px solid rgba(242,142,43,0.25); border-radius:12px; padding:1.4rem;">
+      <div style="color:var(--orange); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">중간 시나리오 (5%)</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 2,264건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+    </div>
+    <div style="background:rgba(78,121,167,0.08); border:1px solid rgba(78,121,167,0.25); border-radius:12px; padding:1.4rem;">
+      <div style="color:var(--blue); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">낙관적 시나리오 (10%)</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 4,529건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+    </div>
+  </div>
+  <p style="color:var(--muted); font-size:0.8rem; margin-top:0.8rem; margin-left:0.2rem;">* 장기 미재구매 45,296건 기준 / 비용 미반영 추정치</p>
+</section>
+
+<hr class="full-divider">
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-label reveal">기술 스택</div>
+  <h2 class="reveal">사용 기술 & 방법론</h2>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:2rem; margin-top:1.5rem;" class="reveal">
+
+    <div>
+      <div style="color:var(--muted); font-size:0.78rem; font-weight:700; margin-bottom:0.8rem; letter-spacing:0.08em;">DATA PROCESSING</div>
+      <div class="tech-grid">
+        <span class="tech-badge python">Python</span>
+        <span class="tech-badge python">pandas</span>
+        <span class="tech-badge python">numpy</span>
+        <span class="tech-badge python">Jupyter</span>
+      </div>
+    </div>
+
+    <div>
+      <div style="color:var(--muted); font-size:0.78rem; font-weight:700; margin-bottom:0.8rem; letter-spacing:0.08em;">STATISTICS</div>
+      <div class="tech-grid">
+        <span class="tech-badge stat">scipy</span>
+        <span class="tech-badge stat">statsmodels</span>
+        <span class="tech-badge stat">Kruskal-Wallis</span>
+        <span class="tech-badge stat">Mann-Whitney U</span>
+        <span class="tech-badge stat">Segmented Regression</span>
+        <span class="tech-badge stat">Fisher's Exact Test</span>
+        <span class="tech-badge stat">PELT</span>
+        <span class="tech-badge stat">Durbin-Watson</span>
+      </div>
+    </div>
+
+    <div>
+      <div style="color:var(--muted); font-size:0.78rem; font-weight:700; margin-bottom:0.8rem; letter-spacing:0.08em;">VISUALIZATION & DASHBOARD</div>
+      <div class="tech-grid">
+        <span class="tech-badge viz">matplotlib</span>
+        <span class="tech-badge viz">seaborn</span>
+        <span class="tech-badge viz">LOWESS</span>
+        <span class="tech-badge tool">Streamlit</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- DELIVERABLES -->
+<section>
+  <div class="section-label reveal">산출물</div>
+  <h2 class="reveal">프로젝트 결과물</h2>
+  <div class="deliverables reveal">
+    <div class="del-card">
+      <span class="del-icon">📄</span>
+      <h3>결과보고서 (105p)</h3>
+      <p>5개 가설 검증 + 6장 심화분석 + 7장 제언 + 8장 결론. 통계 방법론부터 비즈니스 임팩트까지 완성.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">📊</span>
+      <h3>Streamlit 대시보드</h3>
+      <p>6개 페이지 실무 대시보드. 채널·브랜드 성과, 고객 분석, CRM 운영 도구, 기준일 피커 포함.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">🔬</span>
+      <h3>분석 노트북 6종</h3>
+      <p>EDA, 채널 분석, 주간 자기상관, 재구매/리텐션, 가설5 전환 병목, 전처리 파이프라인.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">🎟️</span>
+      <h3>CRM 운영 도구</h3>
+      <p>기준일 기반 고객군 자동 분류 + 발송 대상 리스트 CSV 다운로드 + 임팩트 시나리오.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-name">전우진 · Jeon Woojin</p>
+  <p>Data Analyst · 모두의연구소 아이펠톤 2026</p>
+  <p style="margin-top:0.5rem;">wjsdnwls1110@gmail.com</p>
+  <p style="margin-top:0.5rem;">Data Analyst Portfolio · <a href="전우진 포트포리오.html" style="color:var(--blue); text-decoration:none;">포트폴리오 홈으로</a></p>
+</footer>
+
+<script>
+  // Scroll progress
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    progress.style.transform = `scaleX(${pct})`;
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

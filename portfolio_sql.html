@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Amazon 추천 시스템 | 데이터 분석 포트폴리오</title>
+<style>
+  :root {
+    --blue: #4E79A7;
+    --red: #E15759;
+    --orange: #F28E2B;
+    --green: #59A14F;
+    --yellow: #F1CE63;
+    --purple: #9B72CF;
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #E15759;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; overflow-x: hidden;
+  }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(10,15,30,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo { font-weight: 700; font-size: 0.9rem; color: var(--orange); letter-spacing: 0.05em; }
+  .nav-back {
+    font-size: 0.85rem; color: var(--muted); text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 6rem 2rem 4rem; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(225,87,89,0.1) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 70%, rgba(242,142,43,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(225,87,89,0.1);
+    border: 1px solid rgba(225,87,89,0.35);
+    border-radius: 999px;
+    font-size: 0.8rem; color: var(--red);
+    letter-spacing: 0.08em; margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    font-weight: 800; line-height: 1.2; margin-bottom: 1.2rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--orange); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--muted); max-width: 640px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-kpi {
+    display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.4rem 2rem;
+    min-width: 140px; text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(225,87,89,0.15); }
+  .kpi-card .kpi-num { font-size: 2rem; font-weight: 800; color: var(--orange); display: block; }
+  .kpi-card .kpi-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+  section { padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--orange); text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1rem; }
+  .lead { color: var(--muted); font-size: 1.05rem; max-width: 680px; margin-bottom: 3rem; }
+  .full-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  .system-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+  .sys-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .sys-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .sys-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .sys-card.orange::before { background: var(--orange); }
+  .sys-card.red::before    { background: var(--red); }
+  .sys-card.blue::before   { background: var(--blue); }
+  .sys-card.green::before  { background: var(--green); }
+  .sys-card.purple::before { background: var(--purple); }
+  .sys-num {
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .sys-num.orange { color: var(--orange); }
+  .sys-num.red    { color: var(--red); }
+  .sys-num.blue   { color: var(--blue); }
+  .sys-num.green  { color: var(--green); }
+  .sys-num.purple { color: var(--purple); }
+  .sys-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .sys-card p  { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+  .code-block {
+    background: #0d1420; border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.4rem 1.6rem;
+    margin-top: 1rem; overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.82rem; line-height: 1.7;
+    color: #c9d1d9; white-space: pre;
+  }
+  .kw  { color: #ff7b72; }
+  .fn  { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm  { color: #6e7681; font-style: italic; }
+  .nm  { color: #f0e68c; }
+
+  .insight-box {
+    background: linear-gradient(135deg, rgba(225,87,89,0.08) 0%, rgba(242,142,43,0.05) 100%);
+    border: 1px solid rgba(225,87,89,0.25);
+    border-radius: 16px; padding: 2.4rem; margin: 2.5rem 0;
+  }
+  .insight-box h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--orange); }
+  .insight-box p { color: var(--muted); margin-bottom: 0.5rem; }
+  .big-num { font-size: 2.5rem; font-weight: 900; color: var(--red); }
+
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+  .tech-badge {
+    padding: 0.45rem 1rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; border: 1px solid;
+    transition: transform 0.15s;
+  }
+  .tech-badge:hover { transform: scale(1.05); }
+  .tech-badge.sql  { background: rgba(225,87,89,0.1); border-color: var(--red); color: var(--red); }
+  .tech-badge.gcp  { background: rgba(242,142,43,0.1); border-color: var(--orange); color: var(--orange); }
+  .tech-badge.stat { background: rgba(89,161,79,0.1); border-color: var(--green); color: var(--green); }
+
+  .deliverables { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+  .del-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.6rem; transition: transform 0.2s;
+  }
+  .del-card:hover { transform: translateY(-3px); }
+  .del-icon { font-size: 2rem; margin-bottom: 0.8rem; display: block; }
+  .del-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .del-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.6; }
+
+  footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    text-align: center; padding: 2.5rem;
+  }
+  footer p { color: var(--muted); font-size: 0.83rem; }
+  footer .footer-name { font-weight: 700; color: var(--text); font-size: 1rem; margin-bottom: 0.4rem; }
+
+  #progress {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(to right, var(--red), var(--orange));
+    transform-origin: left; transform: scaleX(0);
+    z-index: 99; transition: transform 0.1s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    .hero-kpi { gap: 1rem; }
+    .kpi-card { min-width: 120px; padding: 1rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <a class="nav-back" href="전우진 포트포리오.html">← 포트폴리오 홈</a>
+  <div class="nav-links">
+    <a href="#overview">개요</a>
+    <a href="#systems">추천 시스템</a>
+    <a href="#sql">SQL 로직</a>
+    <a href="#stack">기술 스택</a>
+  </div>
+</nav>
+
+<div class="hero" id="top">
+  <span class="hero-badge">개인 프로젝트 · BigQuery SQL · 2025</span>
+  <h1>Amazon 데이터셋 기반<br><span>SQL 추천 시스템 설계</span></h1>
+  <p class="hero-sub">
+    BigQuery로 Amazon 인도 이커머스 데이터를 분석하고 5종의 추천 시스템을 SQL로 구현했습니다.
+    Bayesian Average, 텍스트 필터링, 카테고리 연관 구매 등 다양한 추천 로직을 순수 SQL로 설계했습니다.
+  </p>
+  <div class="hero-kpi">
+    <div class="kpi-card">
+      <span class="kpi-num">5종</span>
+      <div class="kpi-label">추천 시스템</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">1,465</span>
+      <div class="kpi-label">분석 상품</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">BigQuery</span>
+      <div class="kpi-label">분석 환경</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-num">CTE</span>
+      <div class="kpi-label">핵심 SQL 기법</div>
+    </div>
+  </div>
+</div>
+
+<hr class="full-divider">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label reveal">프로젝트 개요</div>
+  <h2 class="reveal">추천 시스템, SQL 만으로 가능한가?</h2>
+  <p class="lead reveal">
+    Python ML 라이브러리 없이 순수 BigQuery SQL로 5종의 추천 시스템을 구현했습니다.
+    Bayesian Average로 리뷰 수 편향을 보정하고, UNNEST와 윈도우 함수로
+    카테고리 연관 구매(협업 필터링 개념)를 SQL 단에서 구현했습니다.
+  </p>
+</section>
+
+<hr class="full-divider">
+
+<!-- SYSTEMS -->
+<section id="systems">
+  <div class="section-label reveal">핵심 분석 결과</div>
+  <h2 class="reveal">5종 추천 시스템 상세</h2>
+  <p class="lead reveal">각 시스템은 독립적으로 동작하며, 실제 서비스 상황(메인 페이지, 검색, 상품 상세 등)에 맞게 설계했습니다.</p>
+
+  <div class="system-grid reveal">
+
+    <div class="sys-card orange">
+      <div class="sys-num orange">System 01 · 메인 페이지</div>
+      <h3>Bayesian Average 기반 인기 상품 추천</h3>
+      <p>단순 평점 평균은 리뷰 1개짜리 5.0점 상품이 상위에 올라오는 편향 발생.
+      Bayesian Average(전역 평점 × 전역 리뷰 수 가중 보정)로 리뷰 수와 평점을
+      동시에 반영한 신뢰 가능한 순위를 산출했습니다.</p>
+    </div>
+
+    <div class="sys-card red">
+      <div class="sys-num red">System 02 · 카테고리 페이지</div>
+      <h3>카테고리별 베스트셀러 추천</h3>
+      <p>PARTITION BY 카테고리 + ROW_NUMBER 윈도우 함수로 각 카테고리 내
+      Bayesian 점수 상위 N개를 추출. 카테고리 이동 없이 해당 섹션 내 최적 상품을 노출하는 로직.</p>
+    </div>
+
+    <div class="sys-card blue">
+      <div class="sys-num blue">System 03 · 검색 연동</div>
+      <h3>텍스트 키워드 필터링 추천</h3>
+      <p>상품명·설명 컬럼을 LIKE + LOWER()로 키워드 매칭. UNNEST(SPLIT())로
+      다중 카테고리 태그를 행으로 분리해 교집합 매칭까지 구현.
+      검색어와 관련도 높은 상품을 평점 순으로 정렬해 반환합니다.</p>
+    </div>
+
+    <div class="sys-card green">
+      <div class="sys-num green">System 04 · 프로모션</div>
+      <h3>할인율 기반 특가 상품 추천</h3>
+      <p>discount_percentage 컬럼 파싱(문자열 → 숫자) + 최소 리뷰 수 임계값 필터로
+      "진짜 인기 있는데 많이 깎인" 상품을 선별. 단순 최저가 목록과 차별화된 큐레이션.</p>
+    </div>
+
+    <div class="sys-card purple">
+      <div class="sys-num purple">System 05 · 상품 상세 페이지</div>
+      <h3>카테고리 연관 구매 (협업 필터링 개념)</h3>
+      <p>같은 상위 카테고리 내 구매된 상품 조합을 CTE로 집계해 공동 구매 빈도 기준으로 연관 상품 추출.
+      주문 단위 데이터 없이 카테고리 근접성으로 협업 필터링 개념을 SQL로 근사했습니다.</p>
+    </div>
+
+  </div>
+
+  <div class="insight-box reveal">
+    <h3>핵심 인사이트</h3>
+    <p style="margin-bottom:1.2rem; color: var(--text);">
+      Bayesian Average 적용 시 리뷰 1~2개짜리 5.0점 상품이 상위권에서 <strong>완전히 제거</strong>됩니다.
+      동일 데이터에서 단순 평점 기준과 Bayesian 기준의 Top 10이 70% 이상 달라졌습니다.
+    </p>
+    <div style="display:flex; gap:3rem; flex-wrap:wrap; align-items:center;">
+      <div>
+        <span class="big-num">70%+</span>
+        <p style="color:var(--muted); font-size:0.85rem;">Bayesian vs 단순 평점 Top 10 차이율</p>
+      </div>
+      <div style="color:var(--muted);">→</div>
+      <div>
+        <p style="color:var(--text); font-size:1rem; line-height:1.8;">
+          추천 품질의 핵심은 <strong style="color:var(--orange);">편향 제거</strong>.<br>
+          리뷰 신뢰도 가중치가 순위를 바꿉니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- SQL -->
+<section id="sql">
+  <div class="section-label reveal">SQL 구현 하이라이트</div>
+  <h2 class="reveal">Bayesian Average SQL 로직</h2>
+  <p class="lead reveal">System 01의 핵심 로직입니다. 전역 평균과 전역 리뷰 수를 CTE로 먼저 계산하고 상품별 보정값을 적용합니다.</p>
+
+  <div class="code-block reveal">
+    <pre><span class="kw">WITH</span> global_stats <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    <span class="fn">AVG</span>(rating)              <span class="kw">AS</span> global_avg_rating,
+    <span class="fn">AVG</span>(rating_count)        <span class="kw">AS</span> global_avg_count
+  <span class="kw">FROM</span> amazon_products
+  <span class="kw">WHERE</span> rating <span class="kw">IS NOT NULL</span>
+    <span class="kw">AND</span> rating_count <span class="kw">IS NOT NULL</span>
+),
+
+bayesian <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    p.product_id,
+    p.product_name,
+    p.category,
+    p.rating,
+    p.rating_count,
+    p.discounted_price,
+    <span class="cm">-- Bayesian Average 공식: (C × m + n × R) / (C + n)</span>
+    <span class="kw">ROUND</span>(
+      (g.global_avg_count * g.global_avg_rating
+        + p.rating_count * p.rating)
+      / (g.global_avg_count + p.rating_count),
+      <span class="nm">2</span>
+    ) <span class="kw">AS</span> bayesian_score
+  <span class="kw">FROM</span> amazon_products p
+  <span class="kw">CROSS JOIN</span> global_stats g
+  <span class="kw">WHERE</span> p.rating_count >= <span class="nm">50</span>  <span class="cm">-- 최소 리뷰 수 임계값</span>
+)
+
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span> bayesian
+<span class="kw">ORDER BY</span> bayesian_score <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nm">20</span>;</pre>
+  </div>
+
+  <p style="color: var(--muted); font-size: 0.88rem; margin-top: 1.2rem;">
+    C = 전역 평균 리뷰 수, m = 전역 평균 평점, n = 상품 리뷰 수, R = 상품 평점.
+    CROSS JOIN으로 전역 통계를 모든 행에 조인해 단일 쿼리로 처리합니다.
+  </p>
+</section>
+
+<hr class="full-divider">
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-label reveal">기술 스택</div>
+  <h2 class="reveal">사용 기술</h2>
+  <div class="tech-grid reveal">
+    <span class="tech-badge sql">BigQuery SQL</span>
+    <span class="tech-badge sql">CTE (WITH절)</span>
+    <span class="tech-badge sql">Window Functions</span>
+    <span class="tech-badge sql">UNNEST / SPLIT</span>
+    <span class="tech-badge sql">CROSS JOIN</span>
+    <span class="tech-badge stat">Bayesian Average</span>
+    <span class="tech-badge stat">ROW_NUMBER()</span>
+    <span class="tech-badge gcp">Google BigQuery</span>
+    <span class="tech-badge gcp">Google Cloud</span>
+  </div>
+
+  <div class="deliverables reveal" style="margin-top: 3rem;">
+    <div class="del-card">
+      <span class="del-icon">📄</span>
+      <h3>분석 보고서</h3>
+      <p>5종 추천 시스템의 설계 의도, SQL 로직, 결과 샘플을 정리한 문서. 로직별 한계와 개선 방향 포함.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">🛢️</span>
+      <h3>BigQuery 쿼리 파일</h3>
+      <p>실행 가능한 5개 SQL 파일. Amazon 데이터셋 스키마에 맞게 바로 실행 가능한 형태.</p>
+    </div>
+    <div class="del-card">
+      <span class="del-icon">📊</span>
+      <h3>추천 결과 비교표</h3>
+      <p>단순 평점 vs Bayesian Average Top 20 비교. 두 방식의 결과가 얼마나 다른지 직관적으로 정리.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p class="footer-name">전우진 · Jeon Woojin</p>
+  <p>Data Analyst Portfolio · <a href="전우진 포트포리오.html" style="color:var(--orange); text-decoration:none;">포트폴리오 홈으로</a></p>
+</footer>
+
+<script>
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    bar.style.transform = `scaleX(${pct})`;
+  });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
