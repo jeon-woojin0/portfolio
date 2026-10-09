@@ -372,15 +372,15 @@
     <div class="flow-item">
       <div class="flow-dot blue">🔍</div>
       <div class="flow-body">
-        <h3>그렇다면 왜 자사몰 리텐션은 70.7%로 최하위인가?</h3>
-        <p>채널 잠식이 아닌 내부 이탈 문제로 방향 전환. 자사몰 유입 경로 무관 1회성 80~85%, 90일 이탈률 85~93%.</p>
+        <h3>그렇다면 진짜 원인은 무엇인가?</h3>
+        <p>자사채널 매출 감소를 구매자수 × 구매빈도 × 객단가로 분해. 구매자수 -10.6%, 객단가 -5.3%가 주요 원인으로, 자사채널 주문의 48.15%(45,296건)가 소진 후에도 재구매로 이어지지 않는 '장기 미재구매' 구조적 문제 확인.</p>
       </div>
     </div>
     <div class="flow-item">
       <div class="flow-dot orange">⚠️</div>
       <div class="flow-body">
         <h3>전환 병목 확인</h3>
-        <p>외부채널 첫 구매 고객 12,436명 중 자사몰 전환은 1.6%(197명), 소요 중앙값 100일. 이 전환만 이뤄져도 LTV가 2~3배.</p>
+        <p>외부채널 유입 고객 11,453명 중 자사채널 전환은 6.1%(699명)에 그쳤다. 단, 전환 고객의 LTV proxy 중앙값은 207,420원으로 비전환 고객(70,350원)의 약 3배. 전환 유도 시 고객당 137,070원의 추가 가치 기대.</p>
       </div>
     </div>
     <div class="flow-item">
@@ -476,26 +476,26 @@
       </div>
     </div>
 
-    <div class="hyp-card rejected">
-      <span class="hyp-pill rejected">Q2-3 기각</span>
-      <h3>자사몰 고객은 공동구매 이벤트 기간에 이탈하지 않는다</h3>
-      <p>자사몰 고객 66,370명 중 공동구매 혼용 958명(1.4%). 캠페인 기간 1인당 자사채널 매출 차이 p=0.5682 → 통계적으로 유의하지 않음.</p>
+    <div class="hyp-card confirmed">
+      <span class="hyp-pill confirmed">가설 2 채택</span>
+      <h3>자사채널 고객과 외부채널 고객은 다른 고객군</h3>
+      <p>자사채널 66,364명 vs 외부채널 11,453명. 공동구매 캠페인 기간에도 자사채널 1인당 매출은 유의하게 줄지 않았다(Mann-Whitney p=1.000). 외부채널 → 자사 전환율은 공동구매 7.0%, 외부판매 2.0%로 채널 간 이동이 거의 없다.</p>
       <div class="hyp-stat">
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--blue)">1.4%</span>
-          <span class="stat-desc">혼용 고객 비율</span>
+          <span class="stat-val" style="color:var(--blue)">p=1.000</span>
+          <span class="stat-desc">잠식 비유의 (Mann-Whitney)</span>
         </div>
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--muted)">p=0.57</span>
-          <span class="stat-desc">잠식 비유의</span>
+          <span class="stat-val" style="color:var(--muted)">7.0%</span>
+          <span class="stat-desc">공동구매→자사 전환율</span>
         </div>
       </div>
     </div>
 
     <div class="hyp-card confirmed">
-      <span class="hyp-pill confirmed">Q2-4 핵심 발견</span>
-      <h3>양채널 고객이 핵심 VIP</h3>
-      <p>자사 only vs 외부 only는 구매횟수에서 유의한 차이 없음(p=0.095). 그러나 양채널 고객은 중앙값 구매횟수 3회, LTV 21.2만원으로 전용 고객의 2~3배.</p>
+      <span class="hyp-pill confirmed">가설 2 핵심 발견</span>
+      <h3>양채널 고객이 핵심 VIP — LTV 2~3배</h3>
+      <p>세 세그먼트(자사 only · 외부 only · 양채널)의 구매횟수/누적매출을 Kruskal-Wallis로 비교(H=6,432.29, p&lt;0.001). 양채널 고객은 구매횟수 중앙값 3.0회, LTV 중앙값 211,573원으로 단일채널 고객 대비 압도적으로 높았다.</p>
       <div class="hyp-stat">
         <div class="stat-item">
           <span class="stat-val" style="color:var(--green)">21.2만</span>
@@ -508,42 +508,50 @@
       </div>
     </div>
 
-    <div class="hyp-card insight">
-      <span class="hyp-pill insight">섹션 4 발견</span>
-      <h3>자사몰 vs 스마트스토어: 대효과 차이</h3>
-      <p>Mann-Whitney U, 누적매출 효과크기 r=0.534(대효과). 자사몰 109,500원 > 스마트스토어 89,800원. 공동구매 vs 외부판매도 구매횟수 r=0.584(대효과).</p>
+    <div class="hyp-card confirmed">
+      <span class="hyp-pill confirmed">가설 4 채택</span>
+      <h3>상품군마다 최적 채널이 다르다</h3>
+      <p>상품별 자사채널 적합도·외부채널 적합도를 복합 지표로 산정해 4유형 매트릭스 도출. 양채널 확장형 12개(지니어스뉴 드롭스 등), 자사채널 집중형 12개(블러드 플로우케어 등), 외부채널 유입형 11개, 관리/재검토형 11개. 가중치 변화 민감도 분석에서 4분면 일치율 84.8~89.1%로 안정.</p>
       <div class="hyp-stat">
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--blue)">r=0.53</span>
-          <span class="stat-desc">대효과 (자사몰)</span>
+          <span class="stat-val" style="color:var(--blue)">4유형</span>
+          <span class="stat-desc">상품×채널 매트릭스</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--blue)">89.1%</span>
+          <span class="stat-desc">민감도 분석 일치율</span>
         </div>
       </div>
     </div>
 
-    <div class="hyp-card rejected">
-      <span class="hyp-pill rejected">가설 5 전환 병목</span>
-      <h3>외부채널 → 자사몰 전환율 1.6%</h3>
-      <p>외부채널 첫 구매 12,436명 중 197명만 자사몰 전환(1.6%), 전환 소요 중앙값 100일. 자사몰 유입 후 1회성 이탈율 80~85%, 90일 이탈률 85~93%.</p>
+    <div class="hyp-card confirmed">
+      <span class="hyp-pill confirmed">가설 5 채택</span>
+      <h3>외부채널 고객은 자사채널로 자연 전환되지 않는다</h3>
+      <p>외부채널 유입 11,453명 중 자사채널로 전환한 고객은 699명(6.1%)에 불과. 나머지 93.9%는 외부채널에만 머무르거나 단발 구매로 이탈. 단, 전환 고객의 LTV proxy 중앙값은 207,420원으로 비전환(70,350원)의 약 3배다.</p>
       <div class="hyp-stat">
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--red)">1.6%</span>
-          <span class="stat-desc">전환율</span>
+          <span class="stat-val" style="color:var(--orange)">6.1%</span>
+          <span class="stat-desc">자사채널 전환율</span>
         </div>
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--red)">100일</span>
-          <span class="stat-desc">전환 소요 중앙값</span>
+          <span class="stat-val" style="color:var(--green)">207,420원</span>
+          <span class="stat-desc">전환 고객 LTV 중앙값</span>
         </div>
       </div>
     </div>
 
     <div class="hyp-card insight">
-      <span class="hyp-pill insight">섹션 5 발견</span>
-      <h3>브랜드별 자사몰 단가 차이가 핵심</h3>
-      <p>Kruskal-Wallis η²=0.178 대효과. 흑보목 20.5만 &gt; 혜인서 19.5만 &gt; 파이토뉴트리 15.1만 &gt; 그로우랩 9.0만 &gt; 시즈노프 6.9만원.</p>
+      <span class="hyp-pill insight">심화 분석 (6장)</span>
+      <h3>소진 후 재구매 연결 실패가 구조적 문제</h3>
+      <p>코호트 리텐션 분석에서 자사채널은 1개월 이후 5~10% 수준으로 완만히 감소하는 안정 패턴을 보였다. 하지만 소진주기 기반 재구매 타이밍 분석 결과 자사채널 주문의 48.15%(45,296건)가 '장기 미재구매'(소진 200% 초과 미구매)에 해당해, 소진 후 고객이 돌아오지 않는 구조적 문제가 확인됐다.</p>
       <div class="hyp-stat">
         <div class="stat-item">
-          <span class="stat-val" style="color:var(--blue)">η²=0.18</span>
-          <span class="stat-desc">브랜드 효과크기</span>
+          <span class="stat-val" style="color:var(--red)">48.15%</span>
+          <span class="stat-desc">장기 미재구매 비율</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" style="color:var(--red)">45,296건</span>
+          <span class="stat-desc">CRM 대상 주문</span>
         </div>
       </div>
     </div>
@@ -604,18 +612,18 @@
   <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:1rem; margin-top:1.5rem;" class="reveal">
     <div style="background:rgba(89,161,79,0.08); border:1px solid rgba(89,161,79,0.25); border-radius:12px; padding:1.4rem;">
       <div style="color:var(--green); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">보수적 시나리오 (3%)</div>
-      <div style="font-size:1.6rem; font-weight:800;">+약 1,358건</div>
-      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 1,087건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">약 1.04억원 추가 매출</div>
     </div>
     <div style="background:rgba(242,142,43,0.08); border:1px solid rgba(242,142,43,0.25); border-radius:12px; padding:1.4rem;">
       <div style="color:var(--orange); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">중간 시나리오 (5%)</div>
-      <div style="font-size:1.6rem; font-weight:800;">+약 2,264건</div>
-      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 1,812건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">약 1.73억원 추가 매출</div>
     </div>
     <div style="background:rgba(78,121,167,0.08); border:1px solid rgba(78,121,167,0.25); border-radius:12px; padding:1.4rem;">
       <div style="color:var(--blue); font-size:0.78rem; font-weight:700; margin-bottom:0.4rem;">낙관적 시나리오 (10%)</div>
-      <div style="font-size:1.6rem; font-weight:800;">+약 4,529건</div>
-      <div style="color:var(--muted); font-size:0.82rem;">추가 재구매 전환</div>
+      <div style="font-size:1.6rem; font-weight:800;">+약 3,624건</div>
+      <div style="color:var(--muted); font-size:0.82rem;">약 3.47억원 추가 매출</div>
     </div>
   </div>
   <p style="color:var(--muted); font-size:0.8rem; margin-top:0.8rem; margin-left:0.2rem;">* 장기 미재구매 45,296건 기준 / 비용 미반영 추정치</p>
@@ -655,12 +663,11 @@
     </div>
 
     <div>
-      <div style="color:var(--muted); font-size:0.78rem; font-weight:700; margin-bottom:0.8rem; letter-spacing:0.08em;">VISUALIZATION & DASHBOARD</div>
+      <div style="color:var(--muted); font-size:0.78rem; font-weight:700; margin-bottom:0.8rem; letter-spacing:0.08em;">VISUALIZATION</div>
       <div class="tech-grid">
         <span class="tech-badge viz">matplotlib</span>
         <span class="tech-badge viz">seaborn</span>
         <span class="tech-badge viz">LOWESS</span>
-        <span class="tech-badge tool">Streamlit</span>
       </div>
     </div>
 
@@ -678,11 +685,6 @@
       <span class="del-icon">📄</span>
       <h3>결과보고서 (105p)</h3>
       <p>5개 가설 검증 + 6장 심화분석 + 7장 제언 + 8장 결론. 통계 방법론부터 비즈니스 임팩트까지 완성.</p>
-    </div>
-    <div class="del-card">
-      <span class="del-icon">📊</span>
-      <h3>Streamlit 대시보드</h3>
-      <p>6개 페이지 실무 대시보드. 채널·브랜드 성과, 고객 분석, CRM 운영 도구, 기준일 피커 포함.</p>
     </div>
     <div class="del-card">
       <span class="del-icon">🔬</span>
