@@ -403,7 +403,7 @@
     <thead>
       <tr>
         <th>채널</th>
-        <th>고객 수</th>
+        <th>주문건수</th>
         <th>비율</th>
         <th>LTV 중앙값</th>
         <th>특징</th>
@@ -412,42 +412,35 @@
     <tbody>
       <tr>
         <td><span class="dot" style="background:#4E79A7"></span>자사몰</td>
-        <td>65,381명</td>
-        <td>83.3%</td>
+        <td>11,875건</td>
+        <td>10.6%</td>
         <td>109,500원</td>
         <td><span class="tag high">단가 최고</span></td>
       </tr>
       <tr>
         <td><span class="dot" style="background:#03C75A"></span>스마트스토어</td>
-        <td>—</td>
-        <td>—</td>
+        <td>82,352건</td>
+        <td>73.5%</td>
         <td>89,800원</td>
         <td><span class="tag mid">그로우랩 중심</span></td>
       </tr>
       <tr>
         <td><span class="dot" style="background:#E15759"></span>공동구매</td>
-        <td>10,754명</td>
+        <td>15,362건</td>
         <td>13.7%</td>
         <td>70,350원</td>
-        <td><span class="tag mid">재방문율 1.4회</span></td>
+        <td><span class="tag mid">재방문율 높음</span></td>
       </tr>
       <tr>
         <td><span class="dot" style="background:#9D7660"></span>외부판매</td>
-        <td>—</td>
-        <td>—</td>
+        <td>2,402건</td>
+        <td>2.1%</td>
         <td>77,970원</td>
         <td><span class="tag low">1회성, 고단가</span></td>
       </tr>
-      <tr style="background: rgba(78,121,167,0.06)">
-        <td><strong>✨ 양채널 고객</strong></td>
-        <td><strong>1,682명</strong></td>
-        <td><strong>2.1%</strong></td>
-        <td><strong style="color:#59A14F">211,573원</strong></td>
-        <td><span class="tag high">LTV 2~3배 ↑</span></td>
-      </tr>
     </tbody>
   </table>
-  <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.8rem;">* 주문번호 기준 dedup, receiver_key(수령자) 고객 식별, 433,264행 58컬럼</p>
+  <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.8rem;">* 채널별 주문건수 기준 (전체 111,991건). 주문번호 dedup, receiver_key 고객 식별, 433,264행 58컬럼</p>
 </section>
 
 <hr class="full-divider">
